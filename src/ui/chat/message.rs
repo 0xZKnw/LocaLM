@@ -149,19 +149,24 @@ fn ThinkingBlock(content: String) -> Element {
 pub fn MessageBubble(message: Message) -> Element {
     let is_user = message.role == MessageRole::User;
 
-    // Minimalist: No container background for AI, distinct bubble for User
     let container_class = if is_user {
-        "flex flex-row-reverse items-start gap-4 animate-fade-in-up"
+        "flex flex-row-reverse items-end gap-3 mb-6 animate-slide-in-right"
     } else {
-        "flex flex-row items-start gap-4 animate-fade-in"
+        "flex flex-row items-end gap-3 mb-6 animate-slide-in-left"
     };
 
     let bubble_class = if is_user {
-        "bg-[var(--accent-primary)] text-[var(--accent-text)] rounded-2xl rounded-tr-md px-5 py-3 shadow-sm max-w-[85%] leading-relaxed text-base selection:bg-white/20"
+        "max-w-[75%] bg-gradient-to-br from-[#8B5CF6] to-[#6366F1] text-white rounded-2xl rounded-br-md px-5 py-3 shadow-lg shadow-purple-500/30 animate-slide-in-right"
     } else {
-        // AI: Clean text, no bubble background, just pure typography
-        "text-[var(--text-primary)] px-1 py-1 max-w-[90%] leading-relaxed text-base font-normal selection:bg-[var(--accent-subtle)]"
+        "max-w-[85%] bg-white/[0.04] backdrop-blur-md border border-white/[0.08] rounded-2xl rounded-bl-md px-5 py-3 shadow-md animate-slide-in-left"
     };
+
+    let avatar_class = "w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold shadow-md select-none transition-transform hover:scale-105 ".to_string() +
+        if is_user { 
+            "bg-gradient-to-br from-[#8B5CF6] to-[#6366F1] text-white" 
+        } else { 
+            "bg-gradient-to-br from-[#10B981] to-[#059669] text-white" 
+        };
 
     // Parse content for AI messages only
     let content_parts = if !is_user {
@@ -174,15 +179,14 @@ pub fn MessageBubble(message: Message) -> Element {
         div { class: "{container_class}",
             // Avatar
             div {
-                class: "flex-shrink-0 mt-1 select-none",
+                class: "flex-shrink-0",
                 div {
-                    class: "w-8 h-8 rounded-lg flex items-center justify-center shadow-sm text-xs font-bold transition-transform hover:scale-105 " .to_string() +
-                    if is_user { "bg-[var(--bg-surface)] text-[var(--text-primary)] border border-[var(--border-subtle)]" } else { "bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-hover)] text-white shadow-glow" },
+                    class: "{avatar_class}",
 
                     if is_user {
-                        svg { width: "16", height: "16", view_box: "0 0 24 24", fill: "none", stroke: "currentColor", stroke_width: "2", path { d: "M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" }, circle { cx: "12", cy: "7", r: "4" } }
+                        svg { width: "20", height: "20", view_box: "0 0 24 24", fill: "none", stroke: "currentColor", stroke_width: "2", path { d: "M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" }, circle { cx: "12", cy: "7", r: "4" } }
                     } else {
-                        svg { width: "18", height: "18", view_box: "0 0 24 24", fill: "none", stroke: "currentColor", stroke_width: "2", path { d: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" } }
+                        svg { width: "20", height: "20", view_box: "0 0 24 24", fill: "none", stroke: "currentColor", stroke_width: "2", path { d: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" } }
                     }
                 }
             }

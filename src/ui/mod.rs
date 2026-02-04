@@ -75,50 +75,53 @@ pub fn Layout() -> Element {
                 } else if app_state.current_conversation.read().is_some() {
                     ChatView {}
                 } else {
-                    // Welcome Screen - Modern & Minimalist
+                    // Welcome Screen - Modern Glassmorphism
                     div {
-                        class: "flex-1 flex flex-col items-center justify-center p-8 text-center animate-fade-in-up",
-
+                        class: "flex-1 flex flex-col items-center justify-center p-8 text-center",
+                        
+                        // Logo with enhanced glow
                         div {
-                            class: "mb-10 relative group",
-                            // Decorative blur behind logo
-                            div { class: "absolute inset-0 bg-[var(--accent-primary)] blur-[60px] opacity-20 rounded-full group-hover:opacity-30 transition-all duration-500" }
-                            
+                            class: "mb-12 relative",
+                            div { 
+                                class: "absolute inset-0 bg-[var(--accent-primary)] blur-[80px] opacity-30 animate-pulse" 
+                            }
                             div {
-                                class: "relative w-24 h-24 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-2xl flex items-center justify-center text-[var(--accent-primary)] shadow-lg mb-6 transform group-hover:scale-105 transition-all duration-500",
+                                class: "relative w-28 h-28 bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] rounded-3xl flex items-center justify-center text-white shadow-2xl shadow-purple-500/30",
                                 svg { 
-                                    width: "40", 
-                                    height: "40", 
+                                    width: "48", 
+                                    height: "48", 
                                     view_box: "0 0 24 24", 
                                     fill: "none", 
                                     stroke: "currentColor", 
-                                    stroke_width: "1.5", 
+                                    stroke_width: "2", 
                                     path { d: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" } 
                                 }
                             }
                         }
-
-                        h1 { 
-                            class: "text-4xl font-bold mb-3 tracking-tight text-[var(--text-primary)]", 
+                        
+                        // Title with gradient text
+                        h1 {
+                            class: "text-5xl font-bold mb-4 bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)] bg-clip-text text-transparent",
                             "LocaLM"
                         }
                         p { 
                             class: "text-lg text-[var(--text-secondary)] max-w-md mx-auto leading-relaxed mb-12", 
                             "Your private AI companion. Fast, local, and secure." 
                         }
-
-                        // Quick Actions
+                        
+                        // Glass cards for actions
                         div {
-                            class: "grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-lg",
-
-                            // Action 1: New Conversation
+                            class: "grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-lg mt-8",
+                            
+                            // New Chat card
                             button {
-                                class: "flex items-center gap-4 p-5 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] hover:border-[var(--accent-primary)] hover:shadow-glow transition-all duration-300 group text-left",
+                                onclick: move |_| current_view.set(MainView::Chat),
+                                class: "flex items-center gap-4 p-6 rounded-2xl bg-white/[0.03] backdrop-blur-md border border-white/[0.08] hover:bg-white/[0.06] hover:border-white/[0.12] hover:-translate-y-1 transition-all duration-300 group text-left",
                                 div {
-                                    class: "p-3 bg-[var(--bg-subtle)] rounded-xl text-[var(--accent-primary)] group-hover:bg-[var(--accent-primary)] group-hover:text-white transition-colors duration-300",
+                                    class: "p-3 bg-white/[0.05] rounded-xl text-[var(--accent-primary)] group-hover:bg-[var(--accent-primary)] group-hover:text-white transition-colors duration-300",
                                     svg { 
-                                        width: "20", 
-                                        height: "20", 
+                                        width: "24", 
+                                        height: "24", 
                                         view_box: "0 0 24 24", 
                                         fill: "none", 
                                         stroke: "currentColor", 
@@ -128,30 +131,30 @@ pub fn Layout() -> Element {
                                 }
                                 div {
                                     div { class: "font-semibold text-[var(--text-primary)] mb-0.5", "New Conversation" }
-                                    div { class: "text-sm text-[var(--text-tertiary)] group-hover:text-[var(--text-secondary)] transition-colors", "Start a fresh chat" }
+                                    div { class: "text-sm text-[var(--text-secondary)] opacity-70", "Start a fresh chat" }
                                 }
                             }
-
-                            // Action 2: Settings
+                            
+                            // Settings card
                             button {
                                 onclick: move |_| current_view.set(MainView::Settings),
-                                class: "flex items-center gap-4 p-5 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] hover:border-[var(--accent-primary)] hover:shadow-glow transition-all duration-300 group text-left",
+                                class: "flex items-center gap-4 p-6 rounded-2xl bg-white/[0.03] backdrop-blur-md border border-white/[0.08] hover:bg-white/[0.06] hover:border-white/[0.12] hover:-translate-y-1 transition-all duration-300 group text-left",
                                 div {
-                                    class: "p-3 bg-[var(--bg-subtle)] rounded-xl text-[var(--text-secondary)] group-hover:bg-[var(--text-primary)] group-hover:text-[var(--bg-main)] transition-colors duration-300",
+                                    class: "p-3 bg-white/[0.05] rounded-xl text-[var(--text-secondary)] group-hover:bg-[var(--text-primary)] group-hover:text-[var(--bg-main)] transition-colors duration-300",
                                     svg { 
-                                        width: "20", 
-                                        height: "20", 
+                                        width: "24", 
+                                        height: "24", 
                                         view_box: "0 0 24 24", 
                                         fill: "none", 
                                         stroke: "currentColor", 
                                         stroke_width: "2", 
                                         circle { cx: "12", cy: "12", r: "3" }, 
-                                        path { d: "M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" } 
+                                        path { d: "M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" } 
                                     }
                                 }
                                 div {
                                     div { class: "font-semibold text-[var(--text-primary)] mb-0.5", "Settings" }
-                                    div { class: "text-sm text-[var(--text-tertiary)]", "Configure models" }
+                                    div { class: "text-sm text-[var(--text-secondary)] opacity-70", "Configure models" }
                                 }
                             }
                         }

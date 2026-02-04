@@ -42,18 +42,18 @@ pub fn ConversationList() -> Element {
 
     rsx! {
         div {
-            class: "flex-1 overflow-y-auto px-2 py-2 space-y-1",
+            class: "flex-1 overflow-y-auto p-2 space-y-1 custom-scrollbar",
             style: "scrollbar-width: thin;",
 
             if conversations.is_empty() {
                 div {
-                    class: "flex flex-col items-center justify-center py-8 text-[var(--text-tertiary)] gap-2",
+                    class: "flex flex-col items-center justify-center py-8 text-[var(--text-tertiary)] gap-2 opacity-60",
                     svg { width: "24", height: "24", view_box: "0 0 24 24", fill: "none", stroke: "currentColor", stroke_width: "1.5", stroke_dasharray: "4 4", circle { cx: "12", cy: "12", r: "10" } }
                     span { class: "text-xs font-medium", "No recent chats" }
                 }
             } else {
                 div {
-                    class: "text-[10px] uppercase tracking-wider text-[var(--text-tertiary)] font-bold px-3 py-2 select-none",
+                    class: "text-[10px] uppercase tracking-wider text-[var(--text-tertiary)] font-bold px-3 py-2 select-none opacity-80",
                     "Recent"
                 }
 
@@ -63,10 +63,15 @@ pub fn ConversationList() -> Element {
                         .map(|id| id == &conversation.id)
                         .unwrap_or(false);
 
+                    // Glassmorphism item styles
+                    // Base: bg-white/[0.02] border-transparent
+                    // Hover: bg-white/[0.06] border-white/[0.08] translate-x-1
+                    // Selected: bg-white/[0.1] border-white/[0.1] (stronger glass)
+
                     let row_class = if is_selected {
-                        "group flex items-center gap-3 px-3 py-2.5 text-sm rounded-lg cursor-pointer transition-all duration-200 bg-[var(--bg-active)] text-[var(--text-primary)] font-medium shadow-sm"
+                        "group flex items-center gap-3 px-3 py-2.5 rounded-lg bg-white/[0.08] border border-white/[0.1] text-[var(--text-primary)] cursor-pointer transition-all duration-150 shadow-sm backdrop-blur-sm"
                     } else {
-                        "group flex items-center gap-3 px-3 py-2.5 text-sm rounded-lg cursor-pointer transition-all duration-200 hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                        "group flex items-center gap-3 px-3 py-2.5 rounded-lg bg-white/[0.02] hover:bg-white/[0.06] border border-transparent hover:border-white/[0.08] text-[var(--text-secondary)] hover:text-[var(--text-primary)] cursor-pointer transition-all duration-150 hover:translate-x-1"
                     };
 
                     let conversation_for_select = conversation.clone();
@@ -107,7 +112,7 @@ pub fn ConversationList() -> Element {
                                 }
 
                                 button {
-                                    class: "opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-[var(--bg-active)] text-[var(--text-tertiary)] hover:text-[var(--text-error)]",
+                                    class: "opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-white/[0.1] text-[var(--text-tertiary)] hover:text-[var(--text-error)]",
                                     title: "Delete conversation",
                                     onclick: move |evt| {
                                         evt.stop_propagation();

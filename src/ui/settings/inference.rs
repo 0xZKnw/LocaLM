@@ -20,27 +20,25 @@ pub fn InferenceSettings() -> Element {
 
     rsx! {
         div {
-            class: "space-y-8 max-w-3xl mx-auto animate-fade-in",
-            style: "padding-bottom: 2rem;",
+            class: "space-y-6 max-w-3xl mx-auto animate-fade-in pb-8",
 
             // Section: Generation Parameters
-            div { class: "space-y-6",
+            div {
+                class: "p-6 rounded-2xl bg-white/[0.03] backdrop-blur-md border border-white/[0.08]",
+
                 h3 {
-                    class: "text-xl font-semibold pb-2",
-                    style: "color: var(--text-primary); border-bottom: 1px solid var(--border-subtle);",
+                    class: "text-xl font-semibold mb-6 text-[var(--text-primary)]",
                     "Generation Parameters"
                 }
 
                 // Temperature Slider
                 div {
-                    class: "space-y-3",
-                    style: "gap: 0.75rem; display: flex; flex-direction: column;",
+                    class: "mb-6 space-y-3",
 
                     div { class: "flex justify-between items-center",
-                        label { class: "font-medium", style: "color: var(--text-primary);", "Temperature" }
+                        label { class: "font-medium text-[var(--text-primary)]", "Temperature" }
                         span {
-                            class: "text-sm font-mono px-2 py-1 rounded",
-                            style: "background-color: var(--bg-hover); color: var(--text-secondary);",
+                            class: "text-sm font-mono px-2 py-1 rounded bg-white/[0.05] text-[var(--text-secondary)] border border-white/[0.1]",
                             "{temperature:.2}"
                         }
                     }
@@ -58,24 +56,22 @@ pub fn InferenceSettings() -> Element {
                                 tracing::error!("Failed to save settings: {}", error);
                             }
                         },
-                        class: "w-full h-2 rounded-lg appearance-none cursor-pointer",
-                        style: "background-color: var(--bg-active); accent-color: var(--accent-primary);"
+                        class: "w-full h-2 rounded-lg appearance-none cursor-pointer bg-white/[0.1]",
+                        style: "accent-color: var(--accent-primary);"
                     }
-                    p { class: "text-xs", style: "color: var(--text-tertiary);",
+                    p { class: "text-xs text-[var(--text-secondary)] opacity-70",
                         "Controls randomness. Higher values (e.g., 1.0) make output more random, while lower values (e.g., 0.2) make it more focused and deterministic."
                     }
                 }
 
                 // Top P Slider
                 div {
-                    class: "space-y-3",
-                    style: "gap: 0.75rem; display: flex; flex-direction: column;",
+                    class: "mb-6 space-y-3",
 
                     div { class: "flex justify-between items-center",
-                        label { class: "font-medium", style: "color: var(--text-primary);", "Top P" }
+                        label { class: "font-medium text-[var(--text-primary)]", "Top P" }
                         span {
-                            class: "text-sm font-mono px-2 py-1 rounded",
-                            style: "background-color: var(--bg-hover); color: var(--text-secondary);",
+                            class: "text-sm font-mono px-2 py-1 rounded bg-white/[0.05] text-[var(--text-secondary)] border border-white/[0.1]",
                             "{top_p:.2}"
                         }
                     }
@@ -93,17 +89,17 @@ pub fn InferenceSettings() -> Element {
                                 tracing::error!("Failed to save settings: {}", error);
                             }
                         },
-                        class: "w-full h-2 rounded-lg appearance-none cursor-pointer",
-                        style: "background-color: var(--bg-active); accent-color: var(--accent-primary);"
+                        class: "w-full h-2 rounded-lg appearance-none cursor-pointer bg-white/[0.1]",
+                        style: "accent-color: var(--accent-primary);"
                     }
-                    p { class: "text-xs", style: "color: var(--text-tertiary);",
+                    p { class: "text-xs text-[var(--text-secondary)] opacity-70",
                         "Nucleus sampling. Considers the smallest set of tokens whose cumulative probability exceeds the threshold P."
                     }
                 }
 
                 // Top K Input
-                div { class: "space-y-2", style: "gap: 0.5rem; display: flex; flex-direction: column;",
-                    label { class: "font-medium block", style: "color: var(--text-primary);", "Top K" }
+                div { class: "space-y-2",
+                    label { class: "font-medium block text-[var(--text-primary)]", "Top K" }
                     input {
                         r#type: "number",
                         min: "0",
@@ -117,26 +113,26 @@ pub fn InferenceSettings() -> Element {
                                 tracing::error!("Failed to save settings: {}", error);
                             }
                         },
-                        class: "w-full p-3 rounded-lg border focus:ring-2 transition-all",
-                        style: "background-color: var(--bg-input); color: var(--text-primary); border-color: var(--border-subtle); outline-color: var(--border-focus);"
+                        class: "w-full p-3 rounded-lg bg-white/[0.05] border border-white/[0.12] text-[var(--text-primary)] focus:border-[var(--accent-primary)] focus:ring-1 focus:ring-[var(--accent-primary)] transition-all outline-none",
                     }
-                    p { class: "text-xs", style: "color: var(--text-tertiary);",
+                    p { class: "text-xs text-[var(--text-secondary)] opacity-70",
                         "Limits the next token selection to the K most likely tokens."
                     }
                 }
             }
 
             // Section: Model Configuration
-            div { class: "space-y-6",
+            div {
+                class: "p-6 rounded-2xl bg-white/[0.03] backdrop-blur-md border border-white/[0.08]",
+
                 h3 {
-                    class: "text-xl font-semibold pb-2",
-                    style: "color: var(--text-primary); border-bottom: 1px solid var(--border-subtle);",
+                    class: "text-xl font-semibold mb-6 text-[var(--text-primary)]",
                     "Model Configuration"
                 }
 
                 // Max Tokens Input
-                div { class: "space-y-2", style: "gap: 0.5rem; display: flex; flex-direction: column;",
-                    label { class: "font-medium block", style: "color: var(--text-primary);", "Max Tokens" }
+                div { class: "mb-6 space-y-2",
+                    label { class: "font-medium block text-[var(--text-primary)]", "Max Tokens" }
                     input {
                         r#type: "number",
                         min: "1",
@@ -150,14 +146,13 @@ pub fn InferenceSettings() -> Element {
                                 tracing::error!("Failed to save settings: {}", error);
                             }
                         },
-                        class: "w-full p-3 rounded-lg border focus:ring-2 transition-all",
-                        style: "background-color: var(--bg-input); color: var(--text-primary); border-color: var(--border-subtle); outline-color: var(--border-focus);"
+                        class: "w-full p-3 rounded-lg bg-white/[0.05] border border-white/[0.12] text-[var(--text-primary)] focus:border-[var(--accent-primary)] focus:ring-1 focus:ring-[var(--accent-primary)] transition-all outline-none",
                     }
                 }
 
                 // Context Size Dropdown
-                div { class: "space-y-2", style: "gap: 0.5rem; display: flex; flex-direction: column;",
-                    label { class: "font-medium block", style: "color: var(--text-primary);", "Context Window" }
+                div { class: "mb-6 space-y-2",
+                    label { class: "font-medium block text-[var(--text-primary)]", "Context Window" }
                     select {
                         value: "{context_size}",
                         onchange: move |e| {
@@ -168,8 +163,8 @@ pub fn InferenceSettings() -> Element {
                                 tracing::error!("Failed to save settings: {}", error);
                             }
                         },
-                        class: "w-full p-3 rounded-lg border focus:ring-2 transition-all",
-                        style: "background-color: var(--bg-input); color: var(--text-primary); border-color: var(--border-subtle); outline-color: var(--border-focus);",
+                        class: "w-full p-3 rounded-lg bg-white/[0.05] border border-white/[0.12] text-[var(--text-primary)] focus:border-[var(--accent-primary)] focus:ring-1 focus:ring-[var(--accent-primary)] transition-all outline-none",
+                        style: "color-scheme: dark;", // Ensures dropdown options are dark in dark mode
                         option { value: "2048", "2048 Tokens" }
                         option { value: "4096", "4096 Tokens (Default)" }
                         option { value: "8192", "8192 Tokens" }
@@ -178,8 +173,8 @@ pub fn InferenceSettings() -> Element {
                 }
 
                 // System Prompt Textarea
-                div { class: "space-y-2", style: "gap: 0.5rem; display: flex; flex-direction: column;",
-                    label { class: "font-medium block", style: "color: var(--text-primary);", "System Prompt" }
+                div { class: "space-y-2",
+                    label { class: "font-medium block text-[var(--text-primary)]", "System Prompt" }
                     textarea {
                         value: "{system_prompt}",
                         oninput: move |e| {
@@ -190,11 +185,10 @@ pub fn InferenceSettings() -> Element {
                                 tracing::error!("Failed to save settings: {}", error);
                             }
                         },
-                        class: "w-full p-3 rounded-lg border focus:ring-2 transition-all h-32 resize-y font-sans",
-                        style: "background-color: var(--bg-input); color: var(--text-primary); border-color: var(--border-subtle); outline-color: var(--border-focus);",
+                        class: "w-full p-3 rounded-lg bg-white/[0.05] border border-white/[0.12] text-[var(--text-primary)] focus:border-[var(--accent-primary)] focus:ring-1 focus:ring-[var(--accent-primary)] transition-all outline-none h-32 resize-y font-sans",
                         placeholder: "Enter system prompt..."
                     }
-                    p { class: "text-xs", style: "color: var(--text-tertiary);",
+                    p { class: "text-xs text-[var(--text-secondary)] opacity-70",
                         "The initial instructions given to the model to define its behavior and persona."
                     }
                 }

@@ -33,18 +33,20 @@ pub fn Sidebar(on_settings_click: EventHandler<MouseEvent>, on_new_chat: EventHa
     
     rsx! {
         aside {
-            class: "flex flex-col w-[260px] h-full bg-[var(--bg-sidebar)] border-r border-[var(--border-subtle)] transition-colors duration-300 z-10",
+            class: "w-[280px] h-full flex flex-col bg-[var(--bg-sidebar)]/90 backdrop-blur-2xl backdrop-saturate-150 border-r border-[var(--border-subtle)] z-10 transition-colors duration-300",
+            
+            // Header with model picker
+            div { 
+                class: "p-4 border-b border-[var(--border-subtle)] space-y-4",
+                
+                // Model Selector
+                ModelPicker {}
 
-            // Model Selector
-            ModelPicker {}
-
-            // Header: New Chat
-            div {
-                class: "p-4",
+                // New Chat button
                 button {
                     onclick: handle_new,
-                    class: "w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-[var(--accent-text)] bg-[var(--accent-primary)] hover:bg-[var(--accent-hover)] rounded-lg transition-all duration-200 shadow-md hover:shadow-glow active:scale-[0.98] group",
-
+                    class: "w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-white bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-hover)] rounded-xl shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 hover:-translate-y-0.5 transition-all duration-200 group",
+                    
                     svg {
                         class: "w-4 h-4 transition-transform group-hover:rotate-90",
                         view_box: "0 0 24 24",
@@ -58,19 +60,22 @@ pub fn Sidebar(on_settings_click: EventHandler<MouseEvent>, on_new_chat: EventHa
                     "New Chat"
                 }
             }
-
+            
             // Conversation List
+            // We wrap it in a div to match the structure, but ConversationList handles its own scrolling/container
+            // We pass a class to ConversationList? No, it doesn't take props.
+            // We'll trust ConversationList updates to match the style.
             ConversationList {}
-
+            
             // Footer: User / Settings
             div {
-                class: "p-4 border-t border-[var(--border-subtle)] bg-[var(--bg-sidebar)]",
-
-                // Settings Button
+                class: "p-4 border-t border-[var(--border-subtle)] bg-transparent", // Removed bg-[var(--bg-sidebar)] to keep glass effect
+                
+                // Settings button
                 button {
                     onclick: on_settings_click,
-                    class: "w-full flex items-center gap-3 px-3 py-2.5 text-sm text-[var(--text-secondary)] rounded-lg hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] transition-colors duration-200 group",
-
+                    class: "w-full flex items-center gap-3 px-4 py-3 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] rounded-xl hover:bg-white/[0.05] transition-all duration-150 group",
+                    
                     div {
                         class: "p-1.5 rounded-md bg-[var(--bg-subtle)] text-[var(--text-tertiary)] group-hover:text-[var(--text-primary)] transition-colors",
                         svg {
