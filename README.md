@@ -37,7 +37,7 @@ Think of it as your own private Claude or ChatGPT, running offline with full acc
 
 ## Screenshots
 
-> *Coming soon*
+![ClawRS Interface](assets/screen-readme.png)
 
 ---
 
@@ -106,7 +106,7 @@ ClawRS runs entirely **offline** using local models. This has important implicat
 
 - **VRAM/ RAM**: Most local models require 4-16GB of VRAM (GPU) or RAM (CPU). Larger models need more resources.
 - **Recommended Models**: 4-8GB models work well on most consumer hardware. 12B+ parameter models require high-end GPUs.
-- **Download Models**: Get `.gguf` files from HuggingFace (recommended: Llama 3.2, Qwen 2.5, Mistral, Phi-3)
+- **Download Models**: Get `.gguf` files from HuggingFace (recommended: Ministral 3 8b, Falcon H1R 7b...)
 
 ### Context Window Limits
 
@@ -124,7 +124,7 @@ ClawRS runs entirely **offline** using local models. This has important implicat
 ### Performance Expectations
 
 - **Speed**: Depends on your hardware (GPU preferred). 10-50 tokens/sec is typical.
-- **Quality vs Cloud**: A 7B local model ≈ GPT-3.5 level. 70B local ≈ GPT-4 level (but slower).
+- **Quality vs Cloud**: A 7B local model ≈ GPT-4 level. 70B local ≈ GPT-4o level (but slower).
 - **Task Suitability**: Best for coding help, file operations, local tasks. Not ideal for deep research.
 
 ### Tips for Best Experience
@@ -132,7 +132,7 @@ ClawRS runs entirely **offline** using local models. This has important implicat
 1. Use **quantized models** (Q4_K_M, Q5_K_S, Q8_0) for best speed/quality ratio
 2. Ensure **sufficient VRAM** before loading large models
 3. Keep conversations **focused** to avoid hitting context limits
-4. Use **GPT-4 or Claude** for complex reasoning, ClawRS for execution tasks
+4. Use **ChatGPT, Gemini or Claude** for complex reasoning, ClawRS for execution tasks
 
 ---
 
