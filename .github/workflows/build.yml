@@ -65,6 +65,20 @@ jobs:
         run: |
           brew install cmake openssl pkg-config
 
+      - name: Setup CUDA Toolkit (Windows)
+        if: matrix.features == '--features cuda' && matrix.os == 'windows-latest'
+        uses: Jimver/cuda-toolkit@v0.2.30
+        with:
+          cuda: '12.4.0'
+          method: 'network'
+
+      - name: Setup CUDA Toolkit (Ubuntu)
+        if: matrix.features == '--features cuda' && matrix.os == 'ubuntu-latest'
+        uses: Jimver/cuda-toolkit@v0.2.30
+        with:
+          cuda: '12.4.0'
+          method: 'network'
+
       - name: Build release
         run: cargo build --release --target ${{ matrix.target }} ${{ matrix.features }}
 
