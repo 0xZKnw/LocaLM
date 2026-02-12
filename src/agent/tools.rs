@@ -5,6 +5,20 @@ use std::sync::Arc;
 use dashmap::DashMap;
 use thiserror::Error;
 
+/// Compute a short hash (2 chars) for a line of content
+/// This is used for Hashline - see https://github.com/0xZKnw/oh-my-pi
+/// Hashline improves edit success rates by 10-68% for various models
+fn compute_line_hash(line: &str) -> String {
+    // Simple FNV-like hash (not cryptographic, just for content identification)
+    let mut hash: u32 = 2166136261u32;
+    for byte in line.bytes() {
+        hash = hash.wrapping_mul(16777619u32);
+        hash ^= byte as u32;
+    }
+    // Take 2 hex characters (enough for uniqueness in small files)
+    format!("{:02x}", hash & 0xFFF)
+}
+
 /// Tool trait - all tools must implement this
 #[async_trait]
 pub trait Tool: Send + Sync {
@@ -205,7 +219,7 @@ pub mod builtins {
                             let selected: Vec<String> = lines[start..end]
                                 .iter()
                                 .enumerate()
-                                .map(|(i, l)| format!("{:>4}| {}", start + i + 1, l))
+                                .map(|(i, l)| format!("{:>4}|{}| {}", start + i + 1, compute_line_hash(l), l))
                                 .collect();
                             (selected.join("\n"), format!(" (lignes {}-{})", start + 1, end))
                         }
@@ -214,16 +228,16 @@ pub mod builtins {
                             let selected: Vec<String> = lines[start..]
                                 .iter()
                                 .enumerate()
-                                .map(|(i, l)| format!("{:>4}| {}", start + i + 1, l))
+                                .map(|(i, l)| format!("{:>4}|{}| {}", start + i + 1, compute_line_hash(l), l))
                                 .collect();
                             (selected.join("\n"), format!(" (depuis ligne {})", start + 1))
                         }
                         _ => {
-                            // Add line numbers for better context
+                            // Hashline format: line number | hash | content
                             let numbered: Vec<String> = lines
                                 .iter()
                                 .enumerate()
-                                .map(|(i, l)| format!("{:>4}| {}", i + 1, l))
+                                .map(|(i, l)| format!("{:>4}|{}| {}", i + 1, compute_line_hash(l), l))
                                 .collect();
                             (numbered.join("\n"), String::new())
                         }

@@ -11,6 +11,7 @@ use crate::agent::tools::{Tool, ToolError, ToolResult};
 
 // ============================================================================
 // FileEditTool - String replacement editing (like Claude Code's StrReplace)
+// Supports Hashline format: line_number|hash|content
 // ============================================================================
 
 pub struct FileEditTool;
@@ -22,7 +23,7 @@ impl Tool for FileEditTool {
     }
 
     fn description(&self) -> &str {
-        "Edit a file by replacing an exact string with a new string. The old_string must match exactly (including whitespace/indentation). For unique matches only by default; set replace_all=true for multiple replacements. REQUIRES APPROVAL."
+        "Edit a file by replacing an exact string with a new string. Supports two modes:\n1. str_replace: Provide old_string (exact match) + new_string\n2. Hashline: Provide line_number + hash + new_string (hash from file_read output)\n\nThe hash format improves edit success rates by 10-68% for various models.\nREQUIRES APPROVAL."
     }
 
     fn parameters_schema(&self) -> Value {
@@ -35,7 +36,7 @@ impl Tool for FileEditTool {
                 },
                 "old_string": {
                     "type": "string",
-                    "description": "Exact string to find (must be unique in file unless replace_all=true)"
+                    "description": "Exact string to find (must be unique in file unless replace_all=true). Use this OR hash+line_number."
                 },
                 "new_string": {
                     "type": "string",
@@ -45,9 +46,17 @@ impl Tool for FileEditTool {
                     "type": "boolean",
                     "description": "Replace ALL occurrences (default: false, replaces first unique match)",
                     "default": false
+                },
+                "line_number": {
+                    "type": "number",
+                    "description": "Line number to edit (for Hashline mode). Use instead of old_string."
+                },
+                "hash": {
+                    "type": "string",
+                    "description": "2-char hash of the line content (from file_read output). Required for Hashline mode."
                 }
             },
-            "required": ["path", "old_string", "new_string"]
+            "required": ["path", "new_string"]
         })
     }
 
@@ -55,61 +64,113 @@ impl Tool for FileEditTool {
         let path = params["path"]
             .as_str()
             .ok_or_else(|| ToolError::InvalidParameters("path is required".into()))?;
-        let old_string = params["old_string"]
-            .as_str()
-            .ok_or_else(|| ToolError::InvalidParameters("old_string is required".into()))?;
         let new_string = params["new_string"]
             .as_str()
             .ok_or_else(|| ToolError::InvalidParameters("new_string is required".into()))?;
-        let replace_all = params["replace_all"].as_bool().unwrap_or(false);
-
-        if old_string == new_string {
-            return Err(ToolError::InvalidParameters(
-                "old_string and new_string must be different".into(),
-            ));
-        }
-
+        
+        // Hashline mode: line_number + hash provided
+        let hashline_mode = params.get("line_number").is_some() && params.get("hash").is_some();
+        
         let content = tokio::fs::read_to_string(path)
             .await
             .map_err(|e| ToolError::ExecutionFailed(format!("Impossible de lire le fichier: {}", e)))?;
 
-        let count = content.matches(old_string).count();
-        if count == 0 {
-            return Err(ToolError::ExecutionFailed(
-                "old_string introuvable dans le fichier. Vérifiez l'indentation et les espaces.".into(),
-            ));
-        }
-        if count > 1 && !replace_all {
-            return Err(ToolError::ExecutionFailed(format!(
-                "old_string trouvé {} fois. Ajoutez plus de contexte pour le rendre unique, ou utilisez replace_all=true.",
-                count
-            )));
-        }
-
-        let new_content = if replace_all {
-            content.replace(old_string, new_string)
+        let new_content = if hashline_mode {
+            // Hashline mode: edit by line number + hash
+            let line_number = params["line_number"]
+                .as_u64()
+                .ok_or_else(|| ToolError::InvalidParameters("line_number must be a number".into()))? as usize;
+            let hash = params["hash"]
+                .as_str()
+                .ok_or_else(|| ToolError::InvalidParameters("hash must be a string".into()))?;
+            
+            let lines: Vec<&str> = content.lines().collect();
+            let line_idx = line_number.saturating_sub(1);
+            
+            if line_idx >= lines.len() {
+                return Err(ToolError::ExecutionFailed(format!(
+                    "Line {} does not exist (file has {} lines)", line_number, lines.len()
+                )));
+            }
+            
+            let target_line = lines[line_idx];
+            
+            // Compute hash of current line content (without the hash prefix)
+            let current_hash = compute_line_hash(target_line);
+            if current_hash != hash {
+                return Err(ToolError::ExecutionFailed(format!(
+                    "Hash mismatch! Expected '{}' but found '{}'. The line content has changed since file_read.",
+                    hash, current_hash
+                )));
+            }
+            
+            // Replace the line
+            let mut new_lines: Vec<&str> = lines.clone();
+            new_lines[line_idx] = new_string;
+            new_lines.join("\n")
         } else {
-            content.replacen(old_string, new_string, 1)
+            // Classic str_replace mode
+            let old_string = params["old_string"]
+                .as_str()
+                .ok_or_else(|| ToolError::InvalidParameters("old_string is required (or use hashline mode with line_number + hash)".into()))?;
+            let replace_all = params["replace_all"].as_bool().unwrap_or(false);
+
+            if old_string == new_string {
+                return Err(ToolError::InvalidParameters(
+                    "old_string and new_string must be different".into(),
+                ));
+            }
+
+            let count = content.matches(old_string).count();
+            if count == 0 {
+                return Err(ToolError::ExecutionFailed(
+                    "old_string introuvable dans le fichier. Vérifiez l'indentation et les espaces.".into(),
+                ));
+            }
+            if count > 1 && !replace_all {
+                return Err(ToolError::ExecutionFailed(format!(
+                    "old_string trouvé {} fois. Ajoutez plus de contexte pour le rendre unique, ou utilisez replace_all=true.",
+                    count
+                )));
+            }
+
+            if replace_all {
+                content.replace(old_string, new_string)
+            } else {
+                content.replacen(old_string, new_string, 1)
+            }
         };
 
         tokio::fs::write(path, &new_content)
             .await
             .map_err(|e| ToolError::ExecutionFailed(format!("Impossible d'écrire le fichier: {}", e)))?;
 
-        let replacements = if replace_all { count } else { 1 };
+        let count = new_content.matches(new_string).count();
         Ok(ToolResult {
             success: true,
             data: serde_json::json!({
                 "path": path,
-                "replacements": replacements,
+                "replacements": 1,
+                "mode": if hashline_mode { "hashline" } else { "str_replace" },
                 "total_lines": new_content.lines().count()
             }),
             message: format!(
-                "Fichier édité: {} ({} remplacement(s))",
-                path, replacements
+                "Fichier édité: {} (1 remplacement, mode: {})",
+                path,
+                if hashline_mode { "hashline" } else { "str_replace" }
             ),
         })
     }
+}
+
+/// Compute hash for a line (must match the one in tools.rs)
+fn compute_line_hash(line: &str) -> String {
+    let mut hash: u32 = 2166136261u32;
+    for byte in line.bytes() {
+        hash = hash.wrapping_mul(16777619u32);
+        hash ^= byte as u32;
+    }
+    format!("{:02x}", hash & 0xFFF)
 }
 
 // ============================================================================

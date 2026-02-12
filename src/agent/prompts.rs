@@ -161,6 +161,38 @@ Use this for simple, single-line queries like searches.
 - **Conciseness**: Keep reasoning under 100 words.
 - **No Placeholders**: ALWAYS generate real content.
 
+## 🔗 HASHLINE FORMAT (Recommended for Edits)
+
+When you read a file with `file_read`, each line includes a **hash tag**:
+```
+   1|a3| fn main() {
+   2|f1|     println!("hello");
+   3|0e| }
+```
+
+**Use hashes for more reliable edits!** Instead of reproducing the exact old_string:
+- Use `line_number` + `hash` + `new_string` in `file_edit`
+- The hash validates the line hasn't changed since you read it
+- This prevents "String not found" errors
+
+**Example - Before (str_replace):**
+```json
+{"tool": "file_edit", "params": {"path": "main.rs", "old_string": "fn main() {", "new_string": "fn main() -> Result<(), Error> {"}}
+```
+
+**Example - After (Hashline - MORE RELIABLE):**
+```json
+{"tool": "file_edit", "params": {"path": "main.rs", "line_number": 1, "hash": "a3", "new_string": "fn main() -> Result<(), Error> {"}}
+```
+
+**Benefits:**
+- 10-68% higher edit success rate for various models
+- No need to reproduce exact whitespace
+- Validates line hasn't changed since read
+- Reduces retry loops and token waste
+
+**IMPORTANT:** Always prefer Hashline mode when editing files you just read!
+
 
 ## 🚨 ABSOLUTE PROHIBITIONS - ANTI-HALLUCINATION 🚨
 
