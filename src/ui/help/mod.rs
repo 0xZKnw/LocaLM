@@ -111,7 +111,7 @@ pub fn HelpView() -> Element {
 <ul class="list-disc pl-6 mb-4 space-y-2">
 <li><strong>VRAM/RAM</strong>: Models require 4-16GB. Use quantized models (Q4, Q5, Q8) for best results.</li>
 <li><strong>Context window</strong>: Limited to 4K-32K tokens. ClawRS automatically adjusts based on your VRAM.</li>
-<li><strong>Model quality</strong>: Local models have less knowledge than cloud models (GPT-4, Claude).</li>
+<li><strong>Model quality</strong>: Local models have less knowledge than cloud models (GPT-5, Gemini 3, Claude Opus 4.6).</li>
 <li><strong>Reasoning</strong>: Complex multi-step reasoning may be less reliable.</li>
 <li><strong>Speed</strong>: Depends on your hardware. GPU acceleration recommended.</li>
 </ul>
@@ -120,7 +120,7 @@ pub fn HelpView() -> Element {
 <ul class="list-disc pl-6 mb-4 space-y-2">
 <li><strong>VRAM/RAM</strong>: Les modeles necessitent 4-16GB. Utilisez des modeles quantifies (Q4, Q5, Q8) pour de meilleurs resultats.</li>
 <li><strong>Fenetre de contexte</strong>: Limitee a 4K-32K tokens. ClawRS ajuste automatiquement selon votre VRAM.</li>
-<li><strong>Qualite du modele</strong>: Les modeles locaux ont moins de connaissances que les modeles cloud (GPT-4, Claude).</li>
+<li><strong>Qualite du modele</strong>: Les modeles locaux ont moins de connaissances que les modeles cloud (GPT-5, Gemini 3, Claude Opus 4.6).</li>
 <li><strong>Reasonnement</strong>: Le raisonnement complexe en plusieurs etapes peut etre moins fiable.</li>
 <li><strong>Vitesse</strong>: Depend de votre materiel. Acceleration GPU recommandee.</li>
 </ul>
@@ -141,7 +141,7 @@ pub fn HelpView() -> Element {
 <li>Check the <strong>Settings</strong> panel to customize inference parameters (temperature, top-p, etc.)</li>
 <li>Enable <strong>GPU acceleration</strong> in Hardware settings for faster inference</li>
 <li>Pre-approve frequent tools in the <strong>allowlist</strong> to speed up workflows</li>
-<li>For complex reasoning, consider using GPT-4 or Claude and use ClawRS for execution</li>
+<li>For complex reasoning, consider using GPT-5, Gemini 3 or Claude Opus 4.6 and use ClawRS for execution</li>
 </ul>"#,
                 content_fr: r#"<ul class="list-disc pl-6 space-y-3">
 <li>Utilisez des <strong>modeles quantifies</strong> (Q4_K_M, Q5_K_S) pour le meilleur ratio vitesse/qualite</li>
@@ -151,7 +151,7 @@ pub fn HelpView() -> Element {
 <li>Consultez le panneau <strong>Parametres</strong> pour personnalier les parametres d'inference (temperature, top-p, etc.)</li>
 <li>Activez <strong>l'acceleration GPU</strong> dans les parametres Materiel pour une inference plus rapide</li>
 <li>Pre-approuvez les outils frequents dans la <strong>liste blanche</strong> pour accelerer les flux de travail</li>
-<li>Pour un raisonnement complexe, utilisez GPT-4 ou Claude et servez-vous de ClawRS pour l'execution</li>
+<li>Pour un raisonnement complexe, utilisez GPT-5, Gemini 3 ou Claude Opus 4.6 et servez-vous de ClawRS pour l'execution</li>
 </ul>"#
             }
 
