@@ -67,10 +67,11 @@ pub fn Sidebar(on_settings_click: EventHandler<MouseEvent>, on_new_chat: EventHa
             // Conversation List
             ConversationList {}
             
-            // Footer: Settings
+            // Footer: Settings + Help
             div {
                 class: "p-3 border-t border-[var(--border-subtle)]",
                 
+                // Settings button
                 button {
                     onclick: on_settings_click,
                     class: "w-full flex items-center gap-3 px-3 py-2.5 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] rounded-xl hover:bg-white/[0.06] transition-all group",
@@ -96,10 +97,11 @@ pub fn Sidebar(on_settings_click: EventHandler<MouseEvent>, on_new_chat: EventHa
                         }
                         span { class: "text-[11px] text-[var(--text-tertiary)]",
                             if is_en { "Preferences" } else { "Preferences" }
+                        }
                     }
                 }
 
-                // Footer: Help button
+                // Help button
                 button {
                     onclick: on_help_click,
                     class: "w-full flex items-center gap-3 px-3 py-2.5 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] rounded-xl hover:bg-white/[0.06] transition-all group",
@@ -132,5 +134,4 @@ pub fn Sidebar(on_settings_click: EventHandler<MouseEvent>, on_new_chat: EventHa
             }
         }
     }
-}
 }
