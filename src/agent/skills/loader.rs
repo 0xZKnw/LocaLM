@@ -71,11 +71,11 @@ impl SkillLoader {
     /// Get the global skills directory based on OS
     fn get_global_skills_dir() -> Option<PathBuf> {
         // Use directories crate to find standard data dir
-        if let Some(proj_dirs) = directories::ProjectDirs::from("com", "LocalClaw", "LocalClaw") {
+        if let Some(proj_dirs) = directories::ProjectDirs::from("com", "clawRS", "clawRS") {
             let _data_dir = proj_dirs.data_dir();
-            // Windows: %APPDATA%/LocalClaw/skills
-            // Linux: ~/.local/share/LocalClaw/skills
-            // macOS: ~/Library/Application Support/LocalClaw/skills
+            // Windows: %APPDATA%/clawRS/skills
+            // Linux: ~/.local/share/clawRS/skills
+            // macOS: ~/Library/Application Support/clawRS/skills
             return Some(proj_dirs.data_dir().join("skills"));
         }
         None
