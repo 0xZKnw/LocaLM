@@ -25,7 +25,7 @@ Think of it as your own private Claude or ChatGPT, running offline with full acc
 - **100% Local & Private** — All inference runs on your hardware via `llama.cpp`. Your data never leaves your machine.
 - **Agentic Tool System** — 30+ built-in tools: file operations, shell execution, git, web search, code search, and more.
 - **GGUF Model Support** — Load any `.gguf` model. Download directly from HuggingFace within the app.
-- **GPU Acceleration** — Optional CUDA and Vulkan support for fast inference.
+- **GPU Acceleration** — CUDA (NVIDIA), Vulkan (NVIDIA/AMD/Intel), Metal (Apple Silicon)
 - **Premium UI** — Warm organic design with glassmorphism, dark/light themes, smooth animations.
 - **Bilingual** — Full French and English interface.
 - **Permission System** — Granular tool permissions with allowlist and auto-approve mode.
@@ -43,7 +43,13 @@ Think of it as your own private Claude or ChatGPT, running offline with full acc
 
 ## Installation
 
-### Prerequisites
+### Download Pre-built Release
+
+Download the latest release from the [Releases page](https://github.com/0xZKnw/clawRS/releases).
+
+### Build from Source
+
+#### Prerequisites
 
 - **Rust** (1.75+ recommended) — [rustup.rs](https://rustup.rs)
 - **CMake** — Required to build `llama.cpp`
@@ -51,20 +57,53 @@ Think of it as your own private Claude or ChatGPT, running offline with full acc
 
 #### Windows
 
-Visual Studio Build Tools with C++ workload are required. The included `build.bat` handles the setup:
+**Requirements:**
+- Visual Studio Build Tools with C++ workload
+- CUDA Toolkit (for CUDA) and/or Vulkan SDK (for Vulkan)
 
-```bash
-# Standard build (CPU + Vulkan auto-detect)
+**Build commands:**
+
+```powershell
+# CPU + Vulkan (auto-detect)
 cargo build --release
 
-# With CUDA support (requires CUDA Toolkit)
+# CUDA only (NVIDIA GPU)
 cargo build --release --features cuda
 
-# With Vulkan support
-cargo build --release --features vulkan
+# Vulkan + CUDA (NVIDIA GPU + fallback)
+cargo build --release --features "cuda,vulkan"
 ```
 
-#### Linux / macOS
+Or use the included scripts:
+```powershell
+# CUDA build
+.\build_cuda.bat
+
+# Standard build (CPU + Vulkan)
+.\build.bat
+```
+
+#### macOS
+
+**Requirements:**
+- Xcode Command Line Tools
+- (Metal is automatic - no additional installation needed)
+
+```bash
+# Install prerequisites
+xcode-select --install
+
+# Build (Metal is automatic on macOS)
+cargo build --release
+
+# Or use the build script
+chmod +x build_macos.sh
+./build_macos.sh
+```
+
+**Note:** Metal GPU acceleration is enabled by default on Apple Silicon Macs. No special features needed.
+
+#### Linux
 
 ```bash
 # Install dependencies (Ubuntu/Debian)
@@ -72,6 +111,9 @@ sudo apt install cmake build-essential libssl-dev pkg-config
 
 # Build
 cargo build --release
+
+# For Vulkan support (optional)
+sudo apt install libvulkan-dev
 ```
 
 ---
