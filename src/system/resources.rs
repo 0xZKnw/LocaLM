@@ -12,6 +12,9 @@ pub struct ResourceUsage {
 #[cfg(any(target_os = "windows", target_os = "macos"))]
 use std::process::Command;
 
+#[cfg(target_os = "linux")]
+use std::fs;
+
 /// Get system memory usage (best effort)
 pub fn get_resource_usage() -> ResourceUsage {
     #[cfg(target_os = "windows")]
@@ -24,7 +27,12 @@ pub fn get_resource_usage() -> ResourceUsage {
         return get_resource_usage_macos();
     }
 
-    #[cfg(not(any(target_os = "windows", target_os = "macos")))]
+    #[cfg(target_os = "linux")]
+    {
+        return get_resource_usage_linux();
+    }
+
+    #[cfg(not(any(target_os = "windows", target_os = "macos", target_os = "linux")))]
     {
         ResourceUsage::default()
     }
@@ -114,6 +122,48 @@ fn get_macos_used_ram_mb() -> Option<u64> {
 
     let used_bytes = (active_pages + wired_pages) * page_size;
     Some(used_bytes / 1024 / 1024)
+}
+
+// =============================================================================
+// Linux resource monitoring (/proc/meminfo — works on all distros)
+// =============================================================================
+
+#[cfg(target_os = "linux")]
+fn get_resource_usage_linux() -> ResourceUsage {
+    let Ok(contents) = fs::read_to_string("/proc/meminfo") else {
+        return ResourceUsage::default();
+    };
+
+    let mut total_kb: u64 = 0;
+    let mut available_kb: u64 = 0;
+
+    for line in contents.lines() {
+        if line.starts_with("MemTotal:") {
+            total_kb = parse_meminfo_value(line);
+        } else if line.starts_with("MemAvailable:") {
+            available_kb = parse_meminfo_value(line);
+        }
+    }
+
+    if total_kb == 0 {
+        return ResourceUsage::default();
+    }
+
+    let used_kb = total_kb.saturating_sub(available_kb);
+
+    ResourceUsage {
+        ram_used_mb: used_kb / 1024,
+        ram_total_mb: total_kb / 1024,
+    }
+}
+
+/// Parse a /proc/meminfo line like "MemTotal:       16384000 kB" -> 16384000
+#[cfg(target_os = "linux")]
+fn parse_meminfo_value(line: &str) -> u64 {
+    line.split_whitespace()
+        .nth(1)
+        .and_then(|v| v.parse::<u64>().ok())
+        .unwrap_or(0)
 }
 
 // =============================================================================

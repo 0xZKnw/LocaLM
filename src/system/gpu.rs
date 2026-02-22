@@ -2,7 +2,6 @@
 //!
 //! Detects available GPUs and their capabilities for model acceleration.
 
-#[cfg(any(target_os = "windows", target_os = "macos"))]
 use std::process::Command;
 
 /// GPU information
@@ -37,7 +36,12 @@ pub fn detect_gpu() -> GpuInfo {
         return detect_gpu_macos();
     }
 
-    #[cfg(not(any(target_os = "windows", target_os = "macos")))]
+    #[cfg(target_os = "linux")]
+    {
+        return detect_gpu_linux();
+    }
+
+    #[cfg(not(any(target_os = "windows", target_os = "macos", target_os = "linux")))]
     {
         GpuInfo {
             name: "GPU not detected".to_string(),
@@ -179,6 +183,105 @@ fn get_macos_total_ram_mb() -> Option<u64> {
     let bytes_str = String::from_utf8_lossy(&output.stdout).trim().to_string();
     let bytes = bytes_str.parse::<u64>().ok()?;
     Some(bytes / 1024 / 1024)
+}
+
+// =============================================================================
+// Linux GPU detection
+// =============================================================================
+
+#[cfg(target_os = "linux")]
+fn detect_gpu_linux() -> GpuInfo {
+    // Try nvidia-smi first (NVIDIA GPUs with full VRAM info)
+    if let Some(info) = detect_gpu_nvidia_smi_linux() {
+        return info;
+    }
+
+    // Fallback: lspci for any GPU name (works on all distros)
+    if let Some(info) = detect_gpu_lspci() {
+        return info;
+    }
+
+    GpuInfo {
+        name: "GPU not detected".to_string(),
+        vram_total_mb: 0,
+        vram_used_mb: 0,
+        vram_usage_available: false,
+        is_available: false,
+    }
+}
+
+/// Detect NVIDIA GPU via nvidia-smi (available on all distros with NVIDIA drivers)
+#[cfg(target_os = "linux")]
+fn detect_gpu_nvidia_smi_linux() -> Option<GpuInfo> {
+    let output = Command::new("nvidia-smi")
+        .args([
+            "--query-gpu=name,memory.total,memory.used",
+            "--format=csv,noheader,nounits",
+        ])
+        .output()
+        .ok()?;
+
+    if !output.status.success() {
+        return None;
+    }
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let line = stdout.lines().find(|l| !l.trim().is_empty())?;
+    let parts: Vec<&str> = line.split(',').map(|s| s.trim()).collect();
+    if parts.len() < 3 {
+        return None;
+    }
+
+    let name = parts[0].to_string();
+    let vram_total_mb = parts[1].parse::<u64>().ok()?;
+    let vram_used_mb = parts[2].parse::<u64>().ok()?;
+
+    Some(GpuInfo {
+        name,
+        vram_total_mb,
+        vram_used_mb,
+        vram_usage_available: true,
+        is_available: true,
+    })
+}
+
+/// Detect GPU via lspci (works on Ubuntu, Fedora, Mint, Arch, etc.)
+#[cfg(target_os = "linux")]
+fn detect_gpu_lspci() -> Option<GpuInfo> {
+    // lspci is part of pciutils, available on virtually all Linux distros
+    let output = Command::new("lspci")
+        .output()
+        .ok()?;
+
+    if !output.status.success() {
+        return None;
+    }
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+
+    // Look for VGA or 3D controller lines
+    for line in stdout.lines() {
+        if line.contains("VGA compatible controller:") || line.contains("3D controller:") {
+            // Format: "01:00.0 VGA compatible controller: NVIDIA Corporation ... [GeForce RTX 3080]"
+            let name = if let Some(pos) = line.find(": ") {
+                line[pos + 2..].trim().to_string()
+            } else {
+                continue;
+            };
+
+            if !name.is_empty() {
+                return Some(GpuInfo {
+                    name,
+                    vram_total_mb: 0,
+                    vram_used_mb: 0,
+                    vram_usage_available: false,
+                    is_available: true,
+                });
+            }
+        }
+    }
+
+    None
 }
 
 // =============================================================================

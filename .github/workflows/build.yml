@@ -14,6 +14,7 @@ permissions:
 jobs:
   build:
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 180
     strategy:
       fail-fast: false
       matrix:
@@ -54,6 +55,11 @@ jobs:
             binary_name: clawrs-macos-arm64
             features: "--features metal"
 
+    env:
+      # Only build for common GPU architectures to speed up CUDA compilation
+      # 75=RTX 20xx, 80=A100, 86=RTX 30xx, 89=RTX 40xx
+      CMAKE_CUDA_ARCHITECTURES: "75;80;86;89"
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -93,6 +99,7 @@ jobs:
         run: cargo build --release --target ${{ matrix.target }} ${{ matrix.features }}
 
       - name: Package binary
+        if: "!contains(matrix.features, 'cuda') || matrix.os != 'windows-latest'"
         shell: bash
         run: |
           mkdir -p release
@@ -106,11 +113,29 @@ jobs:
             fi
           fi
 
+      - name: Package binary with CUDA DLLs (Windows)
+        if: matrix.features == '--features cuda' && matrix.os == 'windows-latest'
+        shell: bash
+        run: |
+          mkdir -p release
+          cp "target/${{ matrix.target }}/release/clawrs.exe" "release/${{ matrix.binary_name }}"
+          # Bundle required CUDA runtime DLLs so users don't need the CUDA Toolkit
+          echo "Bundling CUDA DLLs from $CUDA_PATH ..."
+          for pattern in cublas64_*.dll cublasLt64_*.dll cudart64_*.dll; do
+            found=$(find "$CUDA_PATH" -name "$pattern" 2>/dev/null | head -1)
+            if [ -n "$found" ]; then
+              cp "$found" release/
+              echo "  Bundled: $(basename $found)"
+            fi
+          done
+          echo "Release contents:"
+          ls -la release/
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact_name }}
-          path: release/${{ matrix.binary_name }}
+          path: release/
           retention-days: 5
 
   release:
@@ -137,3 +162,4 @@ jobs:
           fail_on_unmatched_files: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
